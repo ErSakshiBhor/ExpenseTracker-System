@@ -2,5 +2,5 @@ services:
   - type: web
     name: expense-tracker
     env: java
-    buildCommand: "./mvnw clean package"
+    buildCommand: "mvn clean package"
     startCommand: "java -jar target/*.jar"
