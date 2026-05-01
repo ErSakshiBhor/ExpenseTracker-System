@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { jsPDF } from 'jspdf';
 import './App.css';
+const API_URL = process.env.REACT_APP_API_URL;
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
 
@@ -22,7 +23,7 @@ function Login({ setView, setUser }) {
       return;
     }
     setLoading(true);
-    fetch('http://localhost:8081/auth/login', {
+    fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -81,7 +82,7 @@ function Signup({ setView, setUser }) {
       return;
     }
     setLoading(true);
-    fetch('http://localhost:8081/auth/signup', {
+    fetch(`${API_URL}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
@@ -151,27 +152,27 @@ function Dashboard({ isDark, userId }) {
     // Include userId in all API calls
     const userParam = userId ? `?userId=${userId}` : '';
     
-    fetch(`http://localhost:8081/transactions${userParam}`)
+    fetch(`${API_URL}/transactions${userParam}`)
       .then((res) => res.json())
       .then((data) => setTransactions(data))
       .catch((err) => console.error(err));
 
-    fetch(`http://localhost:8081/transactions/analysis${userParam}`)
+    fetch(`${API_URL}/transactions/analysis${userParam}`)
       .then((res) => res.json())
       .then((data) => setAnalysis(data))
       .catch((err) => console.error(err));
 
-    fetch(`http://localhost:8081/transactions/insights${userParam}`)
+    fetch(`${API_URL}/transactions/insights${userParam}`)
       .then((res) => res.json())
       .then((data) => setInsights(data))
       .catch((err) => console.error(err));
 
-    fetch(`http://localhost:8081/transactions/monthly-report${userParam}`)
+    fetch(`${API_URL}/transactions/monthly-report${userParam}`)
       .then((res) => res.json())
       .then((data) => setMonthlyReport(data))
       .catch((err) => console.error(err));
 
-    fetch(`http://localhost:8081/transactions/top-merchants${userParam}`)
+    fetch(`${API_URL}/transactions/top-merchants${userParam}`)
       .then((res) => res.json())
       .then((data) => setTopMerchants(data))
       .catch((err) => console.error(err));
@@ -185,7 +186,7 @@ function Dashboard({ isDark, userId }) {
     if (!smsText.trim()) return;
     setIsParsing(true);
 
-    fetch('http://localhost:8081/transactions/parse-sms', {
+    fetch(`${API_URL}/transactions/parse-sms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sms: smsText, userId: userId })  // Include userId
@@ -217,7 +218,7 @@ function Dashboard({ isDark, userId }) {
     if (!newTx.category || !newTx.amount || !newTx.merchant || !newTx.date) return;
     
     setIsSubmitting(true);
-    fetch('http://localhost:8081/transactions', {
+    fetch(`${API_URL}/transactions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
