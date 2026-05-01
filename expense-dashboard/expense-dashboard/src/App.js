@@ -5,7 +5,12 @@ import {
 } from 'recharts';
 import { jsPDF } from 'jspdf';
 import './App.css';
+
+// Define base API URL from environment variable
 const API_URL = process.env.REACT_APP_API_URL;
+
+// Debug log to verify API URL is loaded
+console.log("API URL:", API_URL);
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
 
@@ -34,10 +39,18 @@ function Login({ setView, setUser }) {
         return data;
       })
       .then((data) => {
-        setUser({ name: data.name, email: data.email, userId: data.userId });  // NEW: Store userId
+        setUser({ name: data.name, email: data.email, userId: data.userId });
         setView('dashboard');
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        console.error('Login error:', err);
+        // Show "Failed to fetch" only for network errors
+        if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+          setError('Failed to fetch. Please check your network connection and try again.');
+        } else {
+          setError(err.message);
+        }
+      })
       .finally(() => setLoading(false));
   };
 
@@ -82,7 +95,7 @@ function Signup({ setView, setUser }) {
       return;
     }
     setLoading(true);
-    fetch(`${API_URL}/auth/signup`, {
+    fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
@@ -93,7 +106,15 @@ function Signup({ setView, setUser }) {
         alert('Signup successful! Please login to continue.');
         setView('login');
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        console.error('Signup error:', err);
+        // Show "Failed to fetch" only for network errors
+        if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+          setError('Failed to fetch. Please check your network connection and try again.');
+        } else {
+          setError(err.message);
+        }
+      })
       .finally(() => setLoading(false));
   };
 
@@ -152,30 +173,40 @@ function Dashboard({ isDark, userId }) {
     // Include userId in all API calls
     const userParam = userId ? `?userId=${userId}` : '';
     
-    fetch(`${API_URL}/transactions${userParam}`)
+    fetch(`${API_URL}/transactions${userParam}`, {
+      headers: { 'Content-Type': 'application/json' }
+    })
       .then((res) => res.json())
       .then((data) => setTransactions(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error('Error fetching transactions:', err));
 
-    fetch(`${API_URL}/transactions/analysis${userParam}`)
+    fetch(`${API_URL}/transactions/analysis${userParam}`, {
+      headers: { 'Content-Type': 'application/json' }
+    })
       .then((res) => res.json())
       .then((data) => setAnalysis(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error('Error fetching analysis:', err));
 
-    fetch(`${API_URL}/transactions/insights${userParam}`)
+    fetch(`${API_URL}/transactions/insights${userParam}`, {
+      headers: { 'Content-Type': 'application/json' }
+    })
       .then((res) => res.json())
       .then((data) => setInsights(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error('Error fetching insights:', err));
 
-    fetch(`${API_URL}/transactions/monthly-report${userParam}`)
+    fetch(`${API_URL}/transactions/monthly-report${userParam}`, {
+      headers: { 'Content-Type': 'application/json' }
+    })
       .then((res) => res.json())
       .then((data) => setMonthlyReport(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error('Error fetching monthly report:', err));
 
-    fetch(`${API_URL}/transactions/top-merchants${userParam}`)
+    fetch(`${API_URL}/transactions/top-merchants${userParam}`, {
+      headers: { 'Content-Type': 'application/json' }
+    })
       .then((res) => res.json())
       .then((data) => setTopMerchants(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error('Error fetching top merchants:', err));
   };
 
   useEffect(() => {
@@ -189,7 +220,7 @@ function Dashboard({ isDark, userId }) {
     fetch(`${API_URL}/transactions/parse-sms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sms: smsText, userId: userId })  // Include userId
+      body: JSON.stringify({ sms: smsText, userId: userId })
     })
       .then(res => {
         if (!res.ok) throw new Error('Failed to parse SMS');
@@ -197,11 +228,16 @@ function Dashboard({ isDark, userId }) {
       })
       .then(data => {
         setSmsText('');
-        loadData(); // Reload dashboard
+        loadData();
       })
       .catch(err => {
-        console.error(err);
-        alert('Error parsing SMS. Ensure format is correct and backend is running.');
+        console.error('SMS Parse error:', err);
+        // Show "Failed to fetch" only for network errors
+        if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+          alert('Failed to fetch. Please check your network connection and try again.');
+        } else {
+          alert('Error parsing SMS. Ensure format is correct and backend is running.');
+        }
       })
       .finally(() => {
         setIsParsing(false);
@@ -223,7 +259,7 @@ function Dashboard({ isDark, userId }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...newTx,
-        userId: userId,  // Include userId
+        userId: userId,
         date: newTx.date + "T00:00:00",
         amount: parseFloat(newTx.amount)
       })
@@ -234,11 +270,16 @@ function Dashboard({ isDark, userId }) {
       })
       .then(() => {
         setNewTx({ category: '', amount: '', merchant: '', date: '', type: 'expense' });
-        loadData(); // Reload dashboard
+        loadData();
       })
       .catch(err => {
-        console.error(err);
-        alert('Error adding transaction.');
+        console.error('Transaction submit error:', err);
+        // Show "Failed to fetch" only for network errors
+        if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+          alert('Failed to fetch. Please check your network connection and try again.');
+        } else {
+          alert('Error adding transaction.');
+        }
       })
       .finally(() => setIsSubmitting(false));
   };

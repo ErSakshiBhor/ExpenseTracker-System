@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "https://expense-tracker-frontend.vercel.app")
+/**
+ * Transaction controller - uses global CORS from CorsConfig
+ * No @CrossOrigin needed here as CorsConfig handles it globally
+ */
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {

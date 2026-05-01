@@ -9,7 +9,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Global CORS configuration for Spring Boot application.
@@ -19,17 +18,12 @@ import java.util.List;
 public class CorsConfig implements WebMvcConfigurer {
 
     /**
-     * Frontend URL deployed on Vercel
-     */
-    private static final String FRONTEND_URL = "https://expense-tracker-frontend.vercel.app";
-
-    /**
      * Configure CORS mappings for all endpoints
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(FRONTEND_URL)
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
                 .allowedHeaders("*")
                 .allowCredentials(true)
@@ -44,8 +38,8 @@ public class CorsConfig implements WebMvcConfigurer {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow frontend origin
-        config.addAllowedOrigin(FRONTEND_URL);
+        // Allow all origins for production (Vercel frontend)
+        config.addAllowedOriginPattern("*");
         
         // Allow all HTTP methods
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
