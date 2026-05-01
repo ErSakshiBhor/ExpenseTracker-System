@@ -18,13 +18,18 @@ import java.util.Arrays;
 public class CorsConfig implements WebMvcConfigurer {
 
     /**
+     * Frontend URL deployed on Vercel
+     */
+    private static final String FRONTEND_URL = "https://expense-tracker-frontend-pi-one.vercel.app";
+
+    /**
      * Configure CORS mappings for all endpoints
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+                .allowedOrigins(FRONTEND_URL)
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
@@ -38,11 +43,11 @@ public class CorsConfig implements WebMvcConfigurer {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow all origins for production (Vercel frontend)
-        config.addAllowedOriginPattern("*");
+        // Allow frontend origin
+        config.addAllowedOrigin(FRONTEND_URL);
         
         // Allow all HTTP methods
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         
         // Allow all headers
         config.setAllowedHeaders(Arrays.asList("*"));
